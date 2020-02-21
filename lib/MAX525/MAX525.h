@@ -21,14 +21,14 @@ public:
     static const byte UP_LOW;
     static const byte UP_HIGH;
 
-    MAX525(byte CS, byte CL, byte PDL, float V_ref);
+    MAX525(byte CS, byte CL, byte PDL, float V_ref, float gain);
 
     void begin();
-    void write_DAC(byte channel, float voltage, float vref, float gain, byte update);
+    void write_DAC(byte channel, float voltage, byte update);
     void set_UPO(byte state);
     void power_down();
     void update_all();
-    void write_all(float voltage, float vref, float gain);
+    void write_all(float voltage);
     void clear_all();
 
 private:
@@ -37,10 +37,19 @@ private:
     byte _CL_PIN;
     byte _PDL_PIN;
     float _VREF;
+public:
+    void setVref(float vref);
+
+    void setGain(float gain);
+
+private:
+    float _GAIN;
 
     //Bit masks for control byte
     static const byte _ADDR;
     static const byte _CTRL;
+
+    uint16_t calc_codec(float voltage);
 };
 
 #endif //MAX525_H

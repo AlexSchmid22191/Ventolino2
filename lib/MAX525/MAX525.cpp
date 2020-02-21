@@ -21,12 +21,13 @@ const byte MAX525::_ADDR = 14;
 const byte MAX525::_CTRL = 12;
 
 
-MAX525::MAX525(byte CS, byte CL, byte PDL, float V_ref)
+MAX525::MAX525(byte CS, byte CL, byte PDL, float V_ref, float gain)
 {
     _CS_PIN = CS;
     _CL_PIN = CL;
     _PDL_PIN = PDL;
     _VREF = V_ref;
+    _GAIN = gain;
 }
 
 void MAX525::begin()
@@ -55,13 +56,13 @@ void MAX525::set_UPO(byte state)
     SPI.endTransaction();
 }
 
-void MAX525::write_DAC(byte channel, float voltage, float vref, float gain, byte update)
+void MAX525::write_DAC(byte channel, float voltage, byte update)
 {
     //DAC code
-    uint16_t code = (uint16_t) (voltage / vref / gain * 4095);
+    uint16_t code = calc_codec(voltage);
 
     //Control word
-    uint16_t ctrl = 0| (channel << MAX525::_ADDR) | (update << MAX525::_CTRL) | code;
+    uint16_t ctrl = 0 | (channel << MAX525::_ADDR) | (update << MAX525::_CTRL) | code;
 
     //Send control word
     SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
@@ -74,7 +75,7 @@ void MAX525::write_DAC(byte channel, float voltage, float vref, float gain, byte
 void MAX525::power_down()
 {
     //Control word
-    uint16_t ctrl = (uint16_t) 0 | (3 << MAX525::_ADDR) | (0<< MAX525::_CTRL);
+    uint16_t ctrl = (uint16_t) 0u | (3u << MAX525::_ADDR) | (0u<< MAX525::_CTRL);
 
     //Send control word
     SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
@@ -87,7 +88,7 @@ void MAX525::power_down()
 void MAX525::update_all()
 {
     //Control word
-    uint16_t ctrl = (uint16_t) 0 | (1 << MAX525::_ADDR) | (0<< MAX525::_CTRL);
+    uint16_t ctrl = (uint16_t) 0u | (1u << MAX525::_ADDR) | (0u<< MAX525::_CTRL);
 
     //Send control word
     SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
@@ -97,13 +98,13 @@ void MAX525::update_all()
     SPI.endTransaction();
 }
 
-void MAX525::write_all(float voltage, float vref, float gain)
+void MAX525::write_all(float voltage)
 {
-    //DAC code
-    uint16_t code = (uint16_t) (voltage / vref / gain * 4095);
+    //DAC codec
+    uint16_t codec = calc_codec(voltage);
 
     //Control word
-    uint16_t ctrl = (uint16_t) 0 | (2 << MAX525::_ADDR) | (0<< MAX525::_CTRL) | code;
+    uint16_t ctrl = (uint16_t) 0 | (2u << MAX525::_ADDR) | (0u<< MAX525::_CTRL) | codec;
 
     //Send control word
     SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
@@ -117,4 +118,19 @@ void MAX525::clear_all()
 {
     digitalWrite(_CL_PIN, LOW);
     digitalWrite(_CL_PIN, HIGH);
+}
+
+uint16_t MAX525::calc_codec(float voltage)
+{
+    return (uint16_t) (voltage / _VREF / _GAIN * 4095);
+}
+
+void MAX525::setVref(float vref)
+{
+    _VREF = vref;
+}
+
+void MAX525::setGain(float gain)
+{
+    _GAIN = gain;
 }
