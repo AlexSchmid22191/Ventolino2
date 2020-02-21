@@ -129,6 +129,7 @@ void listen_to_serial()
                     {
                         MFC_set[channel] = value;
                     }
+                    Serial.println("rec");
                 }
                 //Read set value
                 else if(strncmp(ctrl_seq, "RFD", 3) == 0) {
