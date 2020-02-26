@@ -7,9 +7,9 @@
 #include "MAX525.h"
 
 //Pin definitions
-const byte DAC_CS = 9;
-const byte DAC_CL = 8;
-const byte DAC_PDL = 7;
+const byte DAC_CS = 48;
+const byte DAC_CL = 46;
+const byte DAC_PDL = 44;
 
 const byte ADC_Pins[] = {A0, A1, A2, A3};
 const byte Relais_Pins[] = {7, 6, 5, 4};
