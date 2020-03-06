@@ -76,14 +76,14 @@ void read_ADC()
 {
     for(uint8_t channel = 0; channel <= 3; channel++)
     {
-        int codec = analogRead(MFC_is[channel]);
+        int codec = analogRead(ADC_Pins[channel]);
         MFC_is[channel] = calc_is_percentage(codec);
     }
 }
 
 float calc_is_percentage(int codec)
 {
-    return codec / 1023 * 100;
+    return (float)codec*100 / 1023;
 }
 
 void listen_to_serial()
